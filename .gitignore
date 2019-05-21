@@ -37,6 +37,8 @@ build/Release
 node_modules/
 jspm_packages/
 **/modules
+*.pem
+*.ppk
 
 # TypeScript v1 declaration files
 typings/
