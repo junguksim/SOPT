@@ -23,13 +23,18 @@ router.get('/', async (req,res)=>{
 
 router.get('/:idx', async (req, res)=>{
     let target = req.params.idx;
-    let selectQuery = 'SELECT board.title, board.writetime, content.content, content.image FROM board JOIN content WHERE board.boardIdx = ? AND content.origin = ?'
-    let result = await pool.queryParam_Arr(selectQuery,[target, target]);
-    if(!result) {
+    let selectBoardQuery = 'SELECT board.title, board.writetime FROM board WHERE board.boardIdx = ?';
+    let selectContentQuery = 'SELECT content.content, content.image FROM content WHERE content.origin = ?';
+    let boardResult = (await pool.queryParam_Arr(selectBoardQuery, [target]))[0];
+    let contentResult = await pool.queryParam_Arr(selectContentQuery, [target]);
+    if(!boardResult || !contentResult) {
         res.status(200).send(authUtil.successFalse(statusCode.BAD_REQUEST, resMsg.DB_FAILED));
     }
     else {
-        res.status(200).send(authUtil.successTrue(statusCode.OK, resMsg.READ_DATA_SUCCESS, result));
+        res.status(200).send(authUtil.successTrue(statusCode.OK, resMsg.READ_DATA_SUCCESS, {
+            news : boardResult,
+            content : contentResult
+        }));
     }
 })
 
